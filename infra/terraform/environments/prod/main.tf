@@ -47,4 +47,6 @@ module "ec2" {
   security_group_id     = module.security.ec2_security_group_id
   instance_profile_name = module.iam.instance_profile_name
   key_name              = var.key_name
+
+  user_data = templatefile("${path.root}/../../templates/user-data.sh.tftpl", {})
 }

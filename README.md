@@ -48,6 +48,37 @@ It is designed to show that the project can move from a standard student/full-st
   - frontend works on `http://localhost:8080`
   - backend health endpoint works on `http://localhost:3000/health`
 
+## Ticket 3 — Terraform Infrastructure Planning
+
+This stage introduces the AWS infrastructure design and Terraform project structure for the cloud deployment of TaskTracker.
+
+### Planned AWS resources
+- VPC with a public subnet
+- Internet Gateway and routing
+- Security group for web traffic
+- EC2 instance for running the application platform
+- Elastic IP for stable public access
+- IAM role and instance profile
+- Amazon ECR repositories for frontend and backend images
+- AWS Systems Manager Parameter Store for configuration
+- Route 53 records for domain routing (planned)
+
+### Terraform approach
+The infrastructure is organized using reusable Terraform modules and environment-specific stacks. The initial state management approach uses local Terraform state, with a later plan to migrate to a remote backend.
+
+## Ticket 4 — EC2 Bootstrap
+
+This stage adds first-boot instance bootstrap using EC2 user data.
+
+### What is configured
+- Docker is installed automatically on Amazon Linux 2023
+- Docker service is enabled and started
+- Base application directory `/opt/tasktracker` is created
+- Instance remains managed through AWS Systems Manager Session Manager
+
+### Why this matters
+This turns the EC2 instance from raw infrastructure into a reusable application host that is ready for container deployment in later tickets.
+
 ## Current Architecture
 
 At the current stage, the application runs in a hybrid local-container setup:

@@ -5,8 +5,13 @@ resource "aws_instance" "this" {
   vpc_security_group_ids = [var.security_group_id]
   iam_instance_profile   = var.instance_profile_name
 
-  key_name = var.key_name != "" ? var.key_name : null
+  key_name  = var.key_name != "" ? var.key_name : null
   user_data = var.user_data != "" ? var.user_data : null
+
+  root_block_device {
+    volume_size = 20
+    volume_type = "gp3"
+  }
 
   tags = {
     Name = "${var.project_name}-${var.environment}-ec2"
