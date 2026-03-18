@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <!-- Clipboard shape -->
+  <rect x="12" y="10" width="40" height="50" rx="4" fill="#4F46E5"/>
+  <rect x="20" y="4" width="24" height="12" rx="2" fill="#6366F1"/>
+  
+  <!-- Task checkmark -->
+  <path d="M22 36l8 8 14-14" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

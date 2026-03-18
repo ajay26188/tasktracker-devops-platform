@@ -1,0 +1,24 @@
+services:
+  server:
+    build:
+      context: ./server
+    container_name: tasktracker-server
+    env_file:
+      - ./server/.env
+    environment:
+      ALLOWED_ORIGINS: http://localhost:8080,http://localhost:5173,http://localhost:4173
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  client:
+    build:
+      context: ./client
+      args:
+        VITE_API_URL: http://localhost:3000/api
+    container_name: tasktracker-client
+    depends_on:
+      - server
+    ports:
+      - "8080:80"
+    restart: unless-stopped

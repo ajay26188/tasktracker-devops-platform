@@ -1,0 +1,15 @@
+# Ignore dependencies
+node_modules/
+
+# Ignore logs
+*.log
+
+# Ignore environment config files (often contain secrets)
+.env
+
+# Optional: Ignore local IDE files
+.vscode/
+.DS_Store
+
+#Ignore build folder
+build/
