@@ -7,14 +7,20 @@ dnf install -y docker
 systemctl enable docker
 systemctl start docker
 
-usermod -aG docker ec2-user
+usermod -a -G docker ec2-user
 
 mkdir -p /opt/tasktracker
 chown ec2-user:ec2-user /opt/tasktracker
 
+mkdir -p /usr/local/lib/docker/cli-plugins
+curl -SL https://github.com/docker/compose/releases/download/v5.0.1/docker-compose-linux-x86_64 \
+  -o /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
 cat >/etc/motd <<'EOF'
 TaskTracker DevOps Platform host
 - Docker installed
+- Docker Compose installed manually
 - Managed with Terraform
 - Access via AWS Systems Manager Session Manager
 EOF

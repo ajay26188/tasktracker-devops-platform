@@ -79,6 +79,20 @@ This stage adds first-boot instance bootstrap using EC2 user data.
 ### Why this matters
 This turns the EC2 instance from raw infrastructure into a reusable application host that is ready for container deployment in later tickets.
 
+## Ticket 5A — Single-host Docker deployment on EC2
+
+This stage deploys TaskTracker publicly on a single EC2 host using Docker and Docker Compose.
+
+### Deployment model
+- frontend served by Nginx container on port 80
+- frontend Nginx proxies `/api` and `/socket.io` traffic to the backend container
+- backend connects to MongoDB Atlas
+- Docker images are stored in Amazon ECR
+- EC2 host is accessed through AWS Systems Manager Session Manager
+
+### Why this stage exists
+This provides a real public deployment before introducing Kubernetes, making the architecture easier to verify and incrementally improve.
+
 ## Current Architecture
 
 At the current stage, the application runs in a hybrid local-container setup:
