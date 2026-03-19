@@ -48,11 +48,10 @@ It is designed to show that the project can move from a standard student/full-st
   - frontend works on `http://localhost:8080`
   - backend health endpoint works on `http://localhost:3000/health`
 
-## Ticket 3 — Terraform Infrastructure Planning
+#### Ticket 3 — Terraform Infrastructure Planning
+This stage introduced the AWS infrastructure design and Terraform project structure for the cloud deployment of TaskTracker.
 
-This stage introduces the AWS infrastructure design and Terraform project structure for the cloud deployment of TaskTracker.
-
-### Planned AWS resources
+##### Planned AWS resources
 - VPC with a public subnet
 - Internet Gateway and routing
 - Security group for web traffic
@@ -63,49 +62,74 @@ This stage introduces the AWS infrastructure design and Terraform project struct
 - AWS Systems Manager Parameter Store for configuration
 - Route 53 records for domain routing (planned)
 
-### Terraform approach
-The infrastructure is organized using reusable Terraform modules and environment-specific stacks. The initial state management approach uses local Terraform state, with a later plan to migrate to a remote backend.
+##### Terraform approach
+The infrastructure is organized using reusable Terraform modules and environment-specific stacks.  
+The initial state management approach uses local Terraform state, with a later plan to migrate to a remote backend.
 
-## Ticket 4 — EC2 Bootstrap
+#### Ticket 4 — EC2 Bootstrap
+This stage added first-boot instance bootstrap using EC2 user data.
 
-This stage adds first-boot instance bootstrap using EC2 user data.
-
-### What is configured
+##### What is configured
 - Docker is installed automatically on Amazon Linux 2023
 - Docker service is enabled and started
-- Base application directory `/opt/tasktracker` is created
-- Instance remains managed through AWS Systems Manager Session Manager
+- Docker Compose is installed manually
+- base application directory `/opt/tasktracker` is created
+- instance remains managed through AWS Systems Manager Session Manager
 
-### Why this matters
-This turns the EC2 instance from raw infrastructure into a reusable application host that is ready for container deployment in later tickets.
+##### Why this matters
+This turns the EC2 instance from raw infrastructure into a reusable application host ready for container deployment.
 
-## Ticket 5A — Single-host Docker deployment on EC2
+#### Ticket 5A — Single-host Docker deployment on EC2
+This stage deployed TaskTracker publicly on a single EC2 host using Docker and Docker Compose.
 
-This stage deploys TaskTracker publicly on a single EC2 host using Docker and Docker Compose.
-
-### Deployment model
+##### Deployment model
 - frontend served by Nginx container on port 80
 - frontend Nginx proxies `/api` and `/socket.io` traffic to the backend container
 - backend connects to MongoDB Atlas
 - Docker images are stored in Amazon ECR
 - EC2 host is accessed through AWS Systems Manager Session Manager
 
-### Why this stage exists
-This provides a real public deployment before introducing Kubernetes, making the architecture easier to verify and incrementally improve.
+##### Why this stage exists
+This provided a real public deployment before introducing Kubernetes, making the architecture easier to verify incrementally.
+
+#### Ticket 6 — Kubernetes deployment on EC2 with k3s
+This stage migrated the deployment from Docker Compose to Kubernetes using k3s on the AWS EC2 host.
+
+##### What is configured
+- k3s installed on the EC2 instance
+- TaskTracker frontend deployed as a Kubernetes Deployment
+- TaskTracker backend deployed as a Kubernetes Deployment
+- backend exposed internally through a Kubernetes Service
+- frontend exposed through Kubernetes Ingress
+- `/api` and `/socket.io` routed through ingress to the backend service
+- private Docker images pulled from Amazon ECR using Kubernetes image pull secrets
+- backend application secrets provided through Kubernetes Secrets
+
+##### Why this matters
+This moves the project from container-based deployment to Kubernetes orchestration on AWS, making the platform significantly more aligned with modern cloud deployment practices.
+
+##### Key lessons from this stage
+- Docker Compose service names cannot be reused directly in Kubernetes Nginx configs
+- Kubernetes services must be referenced by their service names
+- ECR authentication must be configured in Kubernetes through image pull secrets
+- frontend Socket.IO production configuration must use same-origin behavior for ingress-based routing
 
 ## Current Architecture
 
-At the current stage, the application runs in a hybrid local-container setup:
+The application now runs on AWS EC2 using k3s Kubernetes with MongoDB Atlas as the external database.
 
-- **client** runs in a Docker container
-- **server** runs in a Docker container
-- **database** remains external via `MONGODB_URI` (MongoDB Atlas / remote MongoDB)
+### Production flow
 
-### Flow
+Users → EC2 Public / Elastic IP → k3s Ingress → frontend service / backend service → MongoDB Atlas
 
-Users → Nginx frontend container → backend container → MongoDB database
-
-This allows the frontend and backend to be tested in production-like containers while keeping the database managed externally.
+### Runtime architecture
+- **AWS EC2** hosts the application platform
+- **k3s** provides the Kubernetes runtime
+- **Ingress** routes public traffic
+- **frontend** runs as a Kubernetes Deployment
+- **backend** runs as a Kubernetes Deployment
+- **MongoDB Atlas** remains the external managed database
+- **Amazon ECR** stores the application images
 
 ## Tech Stack
 
@@ -122,10 +146,12 @@ This allows the frontend and backend to be tested in production-like containers 
 - Docker
 - Docker Compose
 - Nginx
-- AWS
-- Kubernetes (planned: k3s on EC2)
+- AWS EC2
+- Amazon ECR
+- Kubernetes (k3s)
 - Terraform
-- Jenkins
+- AWS Systems Manager Session Manager
+- Jenkins (planned)
 
 ## Local Container Testing
 
