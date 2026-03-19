@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasktracker-server
+  namespace: tasktracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tasktracker-server
+  template:
+    metadata:
+      labels:
+        app: tasktracker-server
+    spec:
+      imagePullSecrets:
+        - name: ecr-regcred
+      containers:
+        - name: server
+          image: 383349724158.dkr.ecr.us-east-1.amazonaws.com/tasktracker-dev-server:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: tasktracker-server-secrets
+                  key: MONGODB_URI
+            - name: SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: tasktracker-server-secrets
+                  key: SECRET
+            - name: EMAIL_FROM
+              valueFrom:
+                secretKeyRef:
+                  name: tasktracker-server-secrets
+                  key: EMAIL_FROM
+            - name: EMAIL_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: tasktracker-server-secrets
+                  key: EMAIL_SECRET
+            - name: BREVO_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: tasktracker-server-secrets
+                  key: BREVO_API_KEY
+            - name: ALLOWED_ORIGINS
+              value: "http://18.210.233.73"

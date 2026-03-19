@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tasktracker-client
+  namespace: tasktracker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tasktracker-client
+  template:
+    metadata:
+      labels:
+        app: tasktracker-client
+    spec:
+      imagePullSecrets:
+        - name: ecr-regcred
+      containers:
+        - name: client
+          image: 383349724158.dkr.ecr.us-east-1.amazonaws.com/tasktracker-dev-client:latest
+          ports:
+            - containerPort: 80

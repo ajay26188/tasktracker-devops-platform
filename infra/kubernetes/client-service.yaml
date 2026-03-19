@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tasktracker-client
+  namespace: tasktracker
+spec:
+  selector:
+    app: tasktracker-client
+  ports:
+    - port: 80
+      targetPort: 80
