@@ -1,26 +1,54 @@
 #!/bin/bash
 set -euxo pipefail
 
+# Base packages
 dnf update -y
-dnf install -y docker
+dnf install -y docker wget git fontconfig java-21-amazon-corretto-headless
 
+# Docker
 systemctl enable docker
 systemctl start docker
-
-usermod -a -G docker ec2-user
+usermod -aG docker ec2-user
 
 mkdir -p /opt/tasktracker
 chown ec2-user:ec2-user /opt/tasktracker
 
+# Docker Compose plugin
 mkdir -p /usr/local/lib/docker/cli-plugins
 curl -SL https://github.com/docker/compose/releases/download/v5.0.1/docker-compose-linux-x86_64 \
   -o /usr/local/lib/docker/cli-plugins/docker-compose
 chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
+# Jenkins repository + install
+wget -O /etc/yum.repos.d/jenkins.repo \
+  https://pkg.jenkins.io/rpm-stable/jenkins.repo
+
+dnf upgrade -y
+dnf install -y jenkins
+
+systemctl daemon-reload
+systemctl enable jenkins
+systemctl start jenkins
+
+# Give Jenkins access to Docker
+usermod -aG docker jenkins
+
+# Install k3s
+curl -sfL https://get.k3s.io | sh -
+
+# Prepare Jenkins kubeconfig
+mkdir -p /var/lib/jenkins/.kube
+cp /etc/rancher/k3s/k3s.yaml /var/lib/jenkins/.kube/config
+chown -R jenkins:jenkins /var/lib/jenkins/.kube
+chmod 700 /var/lib/jenkins/.kube
+chmod 600 /var/lib/jenkins/.kube/config
+
 cat >/etc/motd <<'EOF'
 TaskTracker DevOps Platform host
 - Docker installed
 - Docker Compose installed manually
+- Jenkins installed and started
+- k3s installed
 - Managed with Terraform
 - Access via AWS Systems Manager Session Manager
 EOF
