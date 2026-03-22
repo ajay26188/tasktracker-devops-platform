@@ -2,6 +2,8 @@ data "aws_ssm_parameter" "ami" {
   name = var.ami_ssm_parameter_name
 }
 
+data "aws_caller_identity" "current" {}
+
 module "network" {
   source = "../../modules/network"
 
@@ -27,6 +29,8 @@ module "iam" {
 
   project_name = var.project_name
   environment  = var.environment
+  aws_region   = var.aws_region
+  account_id   = data.aws_caller_identity.current.account_id
 }
 
 module "ecr" {
