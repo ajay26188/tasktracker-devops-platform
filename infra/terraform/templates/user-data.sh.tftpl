@@ -30,8 +30,29 @@ systemctl daemon-reload
 systemctl enable jenkins
 systemctl start jenkins
 
+# Dedicated temp directory for Jenkins on the root disk
+mkdir -p /var/tmp/jenkins-tmp
+chown jenkins:jenkins /var/tmp/jenkins-tmp
+chmod 1777 /var/tmp/jenkins-tmp
+
+# Systemd override so Jenkins and its child processes avoid /tmp
+mkdir -p /etc/systemd/system/jenkins.service.d
+cat >/etc/systemd/system/jenkins.service.d/override.conf <<'EOF'
+[Service]
+Environment="JAVA_OPTS=-Djava.io.tmpdir=/var/tmp/jenkins-tmp"
+Environment="TMP=/var/tmp/jenkins-tmp"
+Environment="TMPDIR=/var/tmp/jenkins-tmp"
+Environment="TEMP=/var/tmp/jenkins-tmp"
+EOF
+
+systemctl daemon-reload
+systemctl restart jenkins
+
 # Give Jenkins access to Docker
 usermod -aG docker jenkins
+
+systemctl daemon-reload
+systemctl restart jenkins
 
 # Install k3s
 curl -sfL https://get.k3s.io | sh -
