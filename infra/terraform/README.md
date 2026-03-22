@@ -27,11 +27,6 @@ This directory contains the Terraform configuration for the AWS infrastructure u
 - ecr
 - ec2
 
-## Planned next modules
-
-- ssm
-- route53
-
 ## Usage
 
 Example for dev:

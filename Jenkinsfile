@@ -11,8 +11,6 @@ pipeline {
 
   environment {
     AWS_REGION   = 'us-east-1'
-    AWS_ACCOUNT  = '383349724158'
-    ECR_REGISTRY = "${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com"
     SERVER_REPO  = 'tasktracker-dev-server'
     CLIENT_REPO  = 'tasktracker-dev-client'
     KUBECONFIG   = '/var/lib/jenkins/.kube/config'
@@ -31,6 +29,19 @@ pipeline {
         script {
           env.SHORT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
           env.IMAGE_TAG = "${env.BUILD_NUMBER}-${env.SHORT_SHA}"
+        }
+      }
+    }
+
+    stage('Prepare AWS Metadata') {
+      steps {
+        script {
+          env.AWS_ACCOUNT = sh(
+            script: 'aws sts get-caller-identity --query Account --output text',
+            returnStdout: true
+          ).trim()
+
+          env.ECR_REGISTRY = "${env.AWS_ACCOUNT}.dkr.ecr.${env.AWS_REGION}.amazonaws.com"
         }
       }
     }
