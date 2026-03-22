@@ -5,6 +5,10 @@ pipeline {
     timestamps()
   }
 
+  triggers {
+    pollSCM('H/5 * * * *')
+  }
+
   environment {
     AWS_REGION   = 'us-east-1'
     AWS_ACCOUNT  = '383349724158'
