@@ -1,49 +1,34 @@
-Internet
-  |
-  v
-Route 53 (later)
-  |
-  v
-Elastic IP
-  |
-  v
-EC2 (Ubuntu)
-  |
-  +-- Docker / k3s later
-  +-- pulls images from ECR
-  +-- reads config from Parameter Store
-  +-- managed via Session Manager
-  |
-  v
-MongoDB Atlas
+# Architecture
 
-Internet
-  |
-  v
-EC2 public IP :80
-  |
-  v
-frontend nginx container
-  ├── serves React app
-  ├── proxies /api -> backend container:3000
-  └── proxies /socket.io -> backend container:3000
-                           |
-                           v
-                      MongoDB Atlas
+## Overview
 
+TaskTracker DevOps Platform is a cloud deployment of the TaskTracker full-stack application on AWS.
+
+The application runs on a single AWS EC2 instance and uses:
+
+- Docker for container images
+- Amazon ECR for image storage
+- k3s for Kubernetes orchestration
+- Traefik Ingress for routing
+- Jenkins for CI/CD automation
+- MongoDB Atlas as the external database
+
+## Final Deployment Architecture
+
+```text
 Internet
   |
   v
 EC2 Public / Elastic IP
   |
   v
-k3s
+k3s Kubernetes Cluster
   |
   v
 Traefik Ingress
-  |---- /        -> client service -> client pod
-  |---- /api     -> server service -> server pod
-  |---- /socket.io -> server service -> server pod
-                          |
-                          v
-                     MongoDB Atlas
+  |---- /          -> tasktracker-client service -> tasktracker-client pod
+  |---- /api       -> tasktracker-server service -> tasktracker-server pod
+  |---- /socket.io -> tasktracker-server service -> tasktracker-server pod
+                                               |
+                                               v
+                                          MongoDB Atlas
